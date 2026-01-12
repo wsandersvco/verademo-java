@@ -14,8 +14,7 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
     - name: Build with Maven
       run: mvn clean package
-
-    - uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4
       with:
         name: verademo.war
         path: target/verademo.war
@@ -33,7 +32,7 @@ jobs:
           with:
             name: verademo.war
         - name: pipeline-scan action step
-          id: pipelien-scan
+          id: pipeline-scan
           uses: veracode/Veracode-pipeline-scan-action@esd-true
           with:
             vid: ${{ secrets.VID }}
