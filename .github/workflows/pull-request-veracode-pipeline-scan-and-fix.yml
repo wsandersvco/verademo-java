@@ -70,8 +70,8 @@ jobs:
           inputFile: filtered_results.json
           vid: ${{ secrets.VID }}
           vkey: ${{ secrets.VKEY }}
-          source_base_path_1: "com/:src/main/java/com/"
-          source_base_path_2: "WEB-INF:src/main/webapp/WEB-INF"
+          source_base_path_1: "com/:app/src/main/java/com/"
+          source_base_path_2: "WEB-INF:app/src/main/webapp/WEB-INF"
           language: java
           prComment: true
           fixType: single
