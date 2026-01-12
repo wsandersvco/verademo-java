@@ -44,10 +44,10 @@ jobs:
             # request_policy: "VeraDemo Policy"
             debug: 1
             fail_build: false
-        - uses: actions/upload-artifact@v6
-          with:
-            name: Veracode Pipeline-Scan Results
-            path: results.json 
+        # - uses: actions/upload-artifact@v6
+        #   with:
+        #     name: Veracode Pipeline-Scan Results
+        #     path: results.json 
 
   veracode-fix:
     runs-on: ubuntu-latest
