@@ -17,12 +17,10 @@ jobs:
     - name: Build with Maven
       run: mvn clean package
       working-directory: ./app
-
-
     - uses: actions/upload-artifact@v4
       with:
           name: verademo.war
-          path: target/verademo.war
+          path: app/target/verademo.war
         
   pipeline_scan:
       needs: build
