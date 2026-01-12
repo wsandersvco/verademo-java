@@ -44,7 +44,7 @@ jobs:
             request_policy: "VeraDemo Policy"
             debug: 1
             fail_build: false
-         - uses: actions/upload-artifact@v4
+        - uses: actions/upload-artifact@v4
           with:
             name: Veracode Pipeline-Scan Results
             path: results.json 
@@ -66,6 +66,7 @@ jobs:
         id: convert
         uses: Veracode/veracode-fix@main
         with:
+          access_token: ${{ github.token }}
           inputFile: filtered_results.json
           vid: ${{ secrets.VID }}
           vkey: ${{ secrets.VKEY }}
