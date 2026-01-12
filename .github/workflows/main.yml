@@ -41,7 +41,7 @@ jobs:
             vid: ${{ secrets.VID }}
             vkey: ${{ secrets.VKEY }}
             file: "verademo.war" 
-            request_policy: "VeraDemo Policy"
+            # request_policy: "VeraDemo Policy"
             debug: 1
             fail_build: false
         - uses: actions/upload-artifact@v4
