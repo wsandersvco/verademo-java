@@ -1,3 +1,5 @@
+on: pull_request
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,10 +16,11 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
     - name: Build with Maven
       run: mvn clean package
-      uses: actions/upload-artifact@v4
+
+    - uses: actions/upload-artifact@v4
       with:
-        name: verademo.war
-        path: target/verademo.war
+          name: verademo.war
+          path: target/verademo.war
         
   pipeline_scan:
       needs: build
