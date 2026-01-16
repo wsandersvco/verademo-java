@@ -75,6 +75,13 @@ jobs:
           commitSHA: ${{ github.sha }}
           ref: ${{ github.ref }}
           githubToken: ${{ github.token }}
+
+      - name: Upload SARIF
+        id: upload
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: veracode-results.sarif
+          category: pipeline-scan
           
   # veracode-fix:
   #   runs-on: ubuntu-latest
