@@ -64,8 +64,8 @@ jobs:
         with:
           results-json: filtered_results.json
           output-results-sarif: veracode-results.sarif
-          source-base-path-1: "^com/:app/src/main/java/com/"
-          source-base-path-2: "^WEB-INF:app/src/main/webapp/WEB-INF"
+          source-base-path-1: "^com/:src/main/java/com/"
+          source-base-path-2: "^WEB-INF:src/main/webapp/WEB-INF"
           repo_owner: ${{ github.repository_owner }}
           # repo_name: ${{ github.repository }}
           commitSHA: ${{ github.sha }}
