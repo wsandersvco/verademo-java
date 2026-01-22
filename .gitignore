@@ -1,1 +1,3 @@
 app/target/
+out/
+.DS_Store
