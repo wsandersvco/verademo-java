@@ -42,6 +42,7 @@ pipeline {
         stage('Veracode Pipeline Scan') {
             steps {
                 sh '$PWD'
+                sh 'ls -lR'
                 // sh 'curl -O https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip'
                 // sh 'unzip pipeline-scan-LATEST.zip pipeline-scan.jar'
                 // withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials', passwordVariable: 'vkey', usernameVariable: 'vid')]) {
