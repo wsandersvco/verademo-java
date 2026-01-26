@@ -39,5 +39,22 @@ pipeline {
                 }
             }
         }
+        stage('Veracode Pipeline Scan') {
+            steps {
+                sh 'curl -O https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip'
+                sh 'unzip pipeline-scan-LATEST.zip pipeline-scan.jar'
+                withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials', passwordVariable: 'vkey', usernameVariable: 'vid')]) {
+                    sh 'java -jar pipeline-scan.jar \
+                      --veracode_api_id "${vid}" \
+                      --veracode_api_key "${vkey}" \
+                      --file "build/libs/example-java-gradle-1.0-SNAPSHOT.jar" \
+                      --fail_on_severity="Very High, High" \
+                      --fail_on_cwe="80" \
+                      --project_name "${JOB_NAME}" \
+                      --project_url "${GIT_URL}" \
+                      --project_ref "${GIT_COMMIT}"'
+                }
+            }
+        }
     }
 }
