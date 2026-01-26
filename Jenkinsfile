@@ -47,7 +47,7 @@ pipeline {
                     sh 'java -jar pipeline-scan.jar \
                       --veracode_api_id "${vid}" \
                       --veracode_api_key "${vkey}" \
-                      --file "build/libs/example-java-gradle-1.0-SNAPSHOT.jar" \
+                      --file "target/verademo.war" \
                       --fail_on_severity="Very High, High" \
                       --fail_on_cwe="80" \
                       --project_name "${JOB_NAME}" \
