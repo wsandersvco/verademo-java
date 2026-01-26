@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label "linux && java"
+        label "linux && java && amd64"
     }
 
     tools {
