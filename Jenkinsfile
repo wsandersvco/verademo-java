@@ -29,15 +29,15 @@ pipeline {
                 // bat "mvn -Dmaven.test.failure.ignore=true clean package"
             }
 
-            post {
+            // post {
                 // If Maven was able to run the tests, even if some of the test
                 // failed, record the test results and archive the jar file.
-                success {
-                    withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials', passwordVariable: 'vkey', usernameVariable: 'vid')]) {
-                        veracode applicationName: '$projectname', createProfile: true, criticality: 'VeryHigh', deleteIncompleteScanLevel: '0', fileNamePattern: '', replacementPattern: '', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: '', teams: 'Default Team', timeout: 60, uploadIncludesPattern: '**/**.jar,**/**.war', vid: vid, vkey: vkey, waitForScan: true
-                    }
-                }
-            }
+                // success {
+                    // withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials', passwordVariable: 'vkey', usernameVariable: 'vid')]) {
+                        // veracode applicationName: '$projectname', createProfile: true, criticality: 'VeryHigh', deleteIncompleteScanLevel: '0', fileNamePattern: '', replacementPattern: '', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: '', teams: 'Default Team', timeout: 60, uploadIncludesPattern: '**/**.jar,**/**.war', vid: vid, vkey: vkey, waitForScan: true
+                    // }
+                // }
+            // }
         }
         stage('Veracode Pipeline Scan') {
             steps {
