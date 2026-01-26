@@ -41,21 +41,21 @@ pipeline {
         }
         stage('Veracode Pipeline Scan') {
             steps {
-                sh 'echo $PWD'
-                sh 'ls -lR'
-                // sh 'curl -O https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip'
-                // sh 'unzip pipeline-scan-LATEST.zip pipeline-scan.jar'
-                // withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials', passwordVariable: 'vkey', usernameVariable: 'vid')]) {
-                //     sh 'java -jar pipeline-scan.jar \
-                //       --veracode_api_id "${vid}" \
-                //       --veracode_api_key "${vkey}" \
-                //       --file "target/verademo.war" \
-                //       --fail_on_severity="Very High, High" \
-                //       --fail_on_cwe="80" \
-                //       --project_name "${JOB_NAME}" \
-                //       --project_url "${GIT_URL}" \
-                //       --project_ref "${GIT_COMMIT}"'
-                // }
+                // sh 'echo $PWD'
+                // sh 'ls -lR'
+                sh 'curl -O https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip'
+                sh 'unzip pipeline-scan-LATEST.zip pipeline-scan.jar'
+                withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials', passwordVariable: 'vkey', usernameVariable: 'vid')]) {
+                    sh 'java -jar pipeline-scan.jar \
+                      --veracode_api_id "${vid}" \
+                      --veracode_api_key "${vkey}" \
+                      --file "app/target/verademo.war" \
+                      --fail_on_severity="Very High, High" \
+                      --fail_on_cwe="80" \
+                      --project_name "${JOB_NAME}" \
+                      --project_url "${GIT_URL}" \
+                      --project_ref "${GIT_COMMIT}"'
+                }
             }
         }
     }
