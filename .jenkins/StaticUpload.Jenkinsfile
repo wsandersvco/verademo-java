@@ -39,7 +39,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials',
                     passwordVariable: 'vkey', usernameVariable: 'vid')]) {
-                    veracode applicationName: '$VERACODE_APP_NAME', canFailJob: true, createProfile: true,
+                    veracode applicationName: "${VERACODE_APP_NAME}", canFailJob: true, createProfile: true,
                         criticality: 'VeryHigh', deleteIncompleteScanLevel: '1', fileNamePattern: 'verademo.war',
                         replacementPattern: 'verademo.war', sandboxName: '', scanExcludesPattern: '',
                         scanIncludesPattern: '', scanName: '$buildnumber', teams: 'Default Team',
