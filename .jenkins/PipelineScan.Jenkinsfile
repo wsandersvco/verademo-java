@@ -1,16 +1,16 @@
 pipeline {
     agent {
-        label "linux && java && amd64"
+        label 'linux && java && amd64'
     }
 
     tools {
         // Install the Maven version configured as "M3" and add it to the path.
-        maven "M3"
-        jdk "JDK25"
+        maven 'M3'
+        jdk 'JDK25'
     }
-    
+
     stages {
-        stage("Check Version") {
+        stage('Check Version') {
             steps {
                 sh 'echo JAVA_HOME is $JAVA_HOME'
                 sh 'echo PATH is $PATH'
@@ -20,23 +20,15 @@ pipeline {
         stage('Build') {
             steps {
                 // Get some code from a GitHub repository
-                git branch: 'main', credentialsId: 'wsandersvco-all-repositories', url: 'https://github.com/wsandersvco/verademo-java'
+                git branch: 'main',
+                    credentialsId: 'wsandersvco-all-repositories',
+                    url: 'https://github.com/wsandersvco/verademo-java'
 
                 // Run Maven on a Unix agent.
-                sh "mvn -Dmaven.test.failure.ignore=true -f app/pom.xml clean package"
+                sh 'mvn -Dmaven.test.failure.ignore=true -f app/pom.xml clean package'
 
                 // To run Maven on a Windows agent, use
                 // bat "mvn -Dmaven.test.failure.ignore=true clean package"
-            }
-
-            post {
-                // If Maven was able to run the tests, even if some of the test
-                // failed, record the test results and archive the jar file.
-                success {
-                    withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials', passwordVariable: 'vkey', usernameVariable: 'vid')]) {
-                        veracode applicationName: '$projectname', canFailJob: true, createProfile: true, criticality: 'VeryHigh', deleteIncompleteScanLevel: '1', fileNamePattern: 'verademo.war', replacementPattern: 'verademo.war', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: '$buildnumber', teams: 'Default Team', timeout: 60, uploadIncludesPattern: 'app/target/verademo.war', vid: vid, vkey: vkey, waitForScan: true
-                    }
-                }
             }
         }
         stage('Veracode Pipeline Scan') {
@@ -45,7 +37,8 @@ pipeline {
                 // sh 'ls -lR'
                 sh 'curl -O https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip'
                 sh 'unzip pipeline-scan-LATEST.zip pipeline-scan.jar'
-                withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials', passwordVariable: 'vkey', usernameVariable: 'vid')]) {
+                withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials',
+                    passwordVariable: 'vkey', usernameVariable: 'vid')]) {
                     sh 'java -jar pipeline-scan.jar \
                       --veracode_api_id "${vid}" \
                       --veracode_api_key "${vkey}" \
@@ -59,6 +52,7 @@ pipeline {
             }
         }
     }
+
     post {
         always {
             archiveArtifacts artifacts: 'results.json', fingerprint: true
