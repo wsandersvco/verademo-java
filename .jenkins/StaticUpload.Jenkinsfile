@@ -35,7 +35,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials',
                     passwordVariable: 'vkey', usernameVariable: 'vid')]) {
-                    veracode applicationName: '$projectname', canFailJob: true, createProfile: true,
+                    // $projectname OR Jenkins Pipeline - verademo-java
+                    veracode applicationName: 'Jenkins Pipeline - verademo-java', canFailJob: true, createProfile: true,
                         criticality: 'VeryHigh', deleteIncompleteScanLevel: '1', fileNamePattern: 'verademo.war',
                         replacementPattern: 'verademo.war', sandboxName: '', scanExcludesPattern: '',
                         scanIncludesPattern: '', scanName: '$buildnumber', teams: 'Default Team',
