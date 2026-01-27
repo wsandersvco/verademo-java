@@ -3,6 +3,10 @@ pipeline {
         label 'linux && java && amd64'
     }
 
+    environment {
+        VERACODE_APP_NAME = 'Jenkins Pipeline - verademo-java'      // App Name in the Veracode Platform
+    }
+
     tools {
         // Install the Maven version configured as "M3" and add it to the path.
         maven 'M3'
@@ -35,7 +39,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'Veracode API Credentials',
                     passwordVariable: 'vkey', usernameVariable: 'vid')]) {
-                    veracode applicationName: '$projectname', canFailJob: true, createProfile: true,
+                    veracode applicationName: '$VERACODE_APP_NAME', canFailJob: true, createProfile: true,
                         criticality: 'VeryHigh', deleteIncompleteScanLevel: '1', fileNamePattern: 'verademo.war',
                         replacementPattern: 'verademo.war', sandboxName: '', scanExcludesPattern: '',
                         scanIncludesPattern: '', scanName: '$buildnumber', teams: 'Default Team',
