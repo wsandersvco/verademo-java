@@ -1,3 +1,5 @@
 app/target/
 out/
 .DS_Store
+filtered_results.json
+results.json
