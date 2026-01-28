@@ -3,6 +3,7 @@ on: workflow_dispatch
 
 jobs:
   get-policy-flaws:
+    if: always()
     runs-on: ubuntu-latest
     name: Veracode Static Analysis - Get Policy Flaws
     container: veracode/api-signing:latest
@@ -13,11 +14,11 @@ jobs:
           cd /tmp
           export VERACODE_API_KEY_ID=${{ secrets.VERACODE_API_ID }}
           export VERACODE_API_KEY_SECRET=${{ secrets.VERACODE_API_KEY }}
-          guid=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=Platform Demo - Static Analysis - verademo-java" | jq -r '._embedded.applications[0].guid') 
+          guid=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=GitHub Actions - python-lets-be-bad-guys" | jq -r '._embedded.applications[0].guid') 
           echo GUID: ${guid}
           total_flaws=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
           echo TOTAL_FLAWS: ${total_flaws}
-          http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True&size=${total_flaws}" > results.json
+          http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True&size=${total_flaws}" | jq -r '._embedded' > results.json
 
       - name: Save results
         uses: actions/upload-artifact@v4
@@ -37,12 +38,10 @@ jobs:
         with:
           name: policy-flaws
 
-      - run: ls -alR
-
       - name: Convert pipeline scan output to SARIF format
         if: always()
         # create code scanning alerts
-        uses: veracode/veracode-pipeline-scan-results-to-sarif@v2.0.4
+        uses: veracode/veracode-pipeline-scan-results-to-sarif@v1.0.7
         with:
           pipeline-results-json: results.json
           output-results-sarif: veracode-results.sarif
