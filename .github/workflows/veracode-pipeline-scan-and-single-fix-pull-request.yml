@@ -2,6 +2,11 @@ name: Veracode Pipeline Scan And Single Fix
 
 on: pull_request
 
+permissions:
+  pull-requests: write  # Required for PR comments
+  issues: write         # Often required as PRs are treated as issues in the API
+  contents: read        # Usually required to read the repo code
+
 env:
   ARTIFACT_NAME: maven-build
   ARTIFACT_PATH: app/target/*.war
@@ -81,7 +86,7 @@ jobs:
         id: convert
         uses: Veracode/veracode-fix@v1.0.4
         with:
-          access_token: ${{ secrets.VERACODE_FIX_PAT }}
+          access_token: ${{ github.token }}
           inputFile: filtered_results.json
           VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
           VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
