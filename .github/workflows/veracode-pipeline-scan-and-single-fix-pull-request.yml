@@ -62,8 +62,8 @@ jobs:
         id: pipeline-scan
         uses: veracode/Veracode-pipeline-scan-action@esd-true
         with:
-          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
-          VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
           file: "verademo.war"
           veracode_policy_name: "Veracode Recommended Very High"
           debug: 1
@@ -88,8 +88,8 @@ jobs:
         with:
           access_token: ${{ github.token }}
           inputFile: filtered_results.json
-          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
-          VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
           source_base_path_1: "com/:app/src/main/java/com/"
           source_base_path_2: "WEB-INF:app/src/main/webapp/WEB-INF"
           language: java
