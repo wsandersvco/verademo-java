@@ -57,8 +57,8 @@ jobs:
         id: pipeline-scan
         uses: veracode/Veracode-pipeline-scan-action@esd-true
         with:
-          vid: ${{ secrets.VID }}
-          vkey: ${{ secrets.VKEY }}
+          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
+          VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
           file: "verademo.war"
           veracode_policy_name: "Veracode Recommended Very High"
           debug: 1
