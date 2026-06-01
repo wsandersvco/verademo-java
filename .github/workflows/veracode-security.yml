@@ -1,0 +1,153 @@
+name: Veracode Security Scanning
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/**'
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  install-veracode:
+    name: Install Veracode CLI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Veracode CLI
+        run: |
+          set -e
+          echo "Installing Veracode CLI..."
+          curl -fsS -O https://tools.veracode.com/veracode-cli/install
+          chmod +x ./install
+          ./install
+          ls -la
+          chmod +x veracode || echo "veracode binary not found in current directory"
+          ./veracode version || echo "Failed to run veracode"
+
+      - name: Upload Veracode CLI
+        uses: actions/upload-artifact@v3
+        with:
+          name: veracode-cli
+          path: veracode
+          retention-days: 1
+
+  autopackage:
+    name: Autopackage Application
+    runs-on: ubuntu-latest
+    needs: install-veracode
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Veracode CLI
+        uses: actions/download-artifact@v3
+        with:
+          name: veracode-cli
+
+      - name: Autopackage Application
+        run: |
+          set -e
+          echo "Running Veracode autopackager..."
+          chmod +x veracode
+          mkdir -p verascan
+          ./veracode package --source . --output verascan --trust
+          echo "Packaged artifacts:"
+          ls -lhR verascan
+          PACKAGED_FILE=$(find verascan -type f \( -name "*.war" -o -name "*.jar" -o -name "*.zip" \) | head -n1)
+          echo "Main packaged file - $PACKAGED_FILE"
+          echo "$PACKAGED_FILE" > packaged_file.txt
+
+      - name: Upload packaged artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: packaged-app
+          path: |
+            verascan/
+            packaged_file.txt
+          retention-days: 1
+
+  sca-scan:
+    name: Agent-Based SCA
+    runs-on: ubuntu-latest
+    needs: autopackage
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Agent-Based SCA
+        run: |
+          set -e
+          echo "Running Veracode Agent-Based SCA..."
+          curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan app --recursive --allow-dirty
+
+  policy-scan:
+    name: Policy Scan (Production)
+    runs-on: ubuntu-latest
+    needs: [autopackage, sca-scan]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download packaged artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: packaged-app
+
+      - name: Install prerequisites
+        run: |
+          apt-get update && apt-get install -y unzip
+
+      - name: Download Veracode Java API Wrapper
+        run: |
+          mkdir -p .veracode
+          VERSION=$(curl -s https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java/maven-metadata.xml | grep -oPm1 "(?<=<latest>)[^<]+")
+          curl -L "https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java/${VERSION}/vosp-api-wrappers-java-${VERSION}-dist.zip" -o .veracode/dist.zip
+          cd .veracode && unzip -o dist.zip && cd ..
+          JAR_PATH=$(find .veracode -type f -name "VeracodeJavaAPI*.jar" | head -n1)
+          cp "$JAR_PATH" vosp-api-wrapper-java.jar
+
+      - name: Upload to Veracode
+        env:
+          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
+          VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
+        run: |
+          echo "Uploading to Veracode..."
+          PACKAGED_FILE=$(cat packaged_file.txt)
+          echo "Packaged file - $PACKAGED_FILE"
+          java -jar vosp-api-wrapper-java.jar -vid $VERACODE_API_ID -vkey $VERACODE_API_KEY -action UploadAndScan -appname "GitHub_Verademo" -createprofile true -autoscan true -filepath "$PACKAGED_FILE" -version "Build ${{ github.run_number }}"
+
+  sandbox-scan:
+    name: Sandbox Scan (Release)
+    runs-on: ubuntu-latest
+    needs: [autopackage, sca-scan]
+    if: startsWith(github.ref, 'refs/heads/release/')
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download packaged artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: packaged-app
+
+      - name: Install prerequisites
+        run: |
+          apt-get update && apt-get install -y unzip
+
+      - name: Download Veracode Java API Wrapper
+        run: |
+          mkdir -p .veracode
+          VERSION=$(curl -s https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java/maven-metadata.xml | grep -oPm1 "(?<=<latest>)[^<]+")
+          curl -L "https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java/${VERSION}/vosp-api-wrappers-java-${VERSION}-dist.zip" -o .veracode/dist.zip
+          cd .veracode && unzip -o dist.zip && cd ..
+          JAR_PATH=$(find .veracode -type f -name "VeracodeJavaAPI*.jar" | head -n1)
+          cp "$JAR_PATH" vosp-api-wrapper-java.jar
+
+      - name: Upload to Veracode Sandbox
+        env:
+          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
+          VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
+        run: |
+          echo "Uploading to Veracode Sandbox..."
+          PACKAGED_FILE=$(cat packaged_file.txt)
+          echo "Packaged file - $PACKAGED_FILE"
+          java -jar vosp-api-wrapper-java.jar -vid $VERACODE_API_ID -vkey $VERACODE_API_KEY -action UploadAndScan -appname "GitHub_Verademo" -createprofile true -autoscan true -sandboxname "github-release" -createsandbox true -filepath "$PACKAGED_FILE" -version "Release ${{ github.run_number }}"
